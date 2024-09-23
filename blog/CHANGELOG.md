@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.1.0...blog-v0.2.0) (2024-09-23)
+
+
+### Features
+
+* updating release for blog ([97b73cd](https://github.com/hyperfluid-solutions/baseimages/commit/97b73cdd67a12fe205a7626b56bb3121e4be740b))
+
 ## [0.1.0](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.0.1...blog-v0.1.0) (2024-09-23)
 
 
