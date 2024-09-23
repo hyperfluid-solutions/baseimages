@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.2.0...blog-v0.3.0) (2024-09-23)
+
+
+### Features
+
+* added more labels in the Dockerfile - this is helpful for dependabot ([230e327](https://github.com/hyperfluid-solutions/baseimages/commit/230e327df59537da695c5322ff080e7f730c3eaf))
+
 ## [0.2.0](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.1.0...blog-v0.2.0) (2024-09-23)
 
 
