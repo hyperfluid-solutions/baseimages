@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.3.0...blog-v0.3.1) (2024-09-23)
+
+
+### Bug Fixes
+
+* removing apt updates from blog ([c17a3f7](https://github.com/hyperfluid-solutions/baseimages/commit/c17a3f7f81d41222fd7a9361ebc39c91e67e6f7f))
+
 ## [0.3.0](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.2.0...blog-v0.3.0) (2024-09-23)
 
 
