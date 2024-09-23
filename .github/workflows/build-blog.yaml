@@ -38,6 +38,7 @@ jobs:
   
   test_deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
         path: [blog]
@@ -45,14 +46,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Loading buildconfig.json into env.BUILDCONFIG
+        run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Loading buildconfig.json into env.BUILDCONFIG
-        run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
+        with:
+          platforms: ${{ fromJson(env.BUILDCONFIG).platforms }}
 
       - name: Parse Semver
         id: semver
@@ -91,6 +94,6 @@ jobs:
           context: ./${{ matrix.path }}
           file: ./${{ matrix.path }}/Dockerfile
           platforms: ${{ fromJson(env.BUILDCONFIG).platforms }}
-          push: true
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
