@@ -1,6 +1,6 @@
 {
-  "version": "0.0.1",
-  "major": "0",
-  "majorminor": "0.0",
+  "version": "0.1.0",
+  "major": "0.1.0",
+  "majorminor": "0.1.0",
   "platforms": "linux/amd64,linux/arm64"
 }
