@@ -35,3 +35,62 @@ jobs:
           context: ./blog
           file: ./blog/Dockerfile
           push: false
+  
+  test_deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path: [blog]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Loading buildconfig.json into env.BUILDCONFIG
+        run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
+
+      - name: Parse Semver
+        id: semver
+        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
+        with:
+          input_string: ${{ fromJson(env.BUILDCONFIG).version }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/hyperfluid-solutions/${{ matrix.path }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}},value=${{ fromJson(env.BUILDCONFIG).version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.semver.outputs.major }}.${{ steps.semver.outputs.minor }}
+            type=semver,pattern={{major}},value=${{ steps.semver.outputs.major }}
+            type=sha
+          # Predefined Annotation Keys:
+          # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+          labels: |
+            org.opencontainers.image.name=${{ matrix.path }}
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.vendor=Hyperfluid Solutions Corp.
+            org.opencontainers.image.version=${{ fromJson(env.BUILDCONFIG).version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.url=https://github.com/hyperfluid-solutions/baseimages/releases/tag/${{ matrix.path }}-v${{ fromJson(env.BUILDCONFIG).version }}
+            org.opencontainers.image.source=https://github.com/hyperfluid-solutions/baseimages
+            org.opencontainers.image.title=${{ matrix.path }}
+            org.opencontainers.image.documentation=https://github.com/hyperfluid-solutions/baseimages/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.path }}
+          file: ./${{ matrix.path }}/Dockerfile
+          platforms: ${{ fromJson(env.BUILDCONFIG).platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
