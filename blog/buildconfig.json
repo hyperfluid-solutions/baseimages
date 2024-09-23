@@ -1,4 +1,6 @@
 {
   "version": "0.1.0",
-  "platforms": "linux/amd64,linux/arm64"
+  "platforms": "linux/amd64,linux/arm64",
+  "documentation": "README.md",
+  "description": "Use this image to have CLI access to R, blogdown, and pandoc"
 }

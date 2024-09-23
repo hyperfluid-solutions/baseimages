@@ -55,7 +55,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            hyperfluid-solutions/${{ matrix.path }}
+            ghcr.io/hyperfluid-solutions/${{ matrix.path }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -63,10 +63,23 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.semver.outputs.major }}.${{ steps.semver.outputs.minor }}
             type=semver,pattern={{major}},value=${{ steps.semver.outputs.major }}
             type=sha
-      
+          # Predefined Annotation Keys:
+          # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+          labels: |
+            org.opencontainers.image.name=${{ matrix.path }}
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.vendor=Hyperfluid Solutions Corp.
+            org.opencontainers.image.version=${{ fromJson(env.BUILDCONFIG).version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.url=https://github.com/hyperfluid-solutions/baseimages/releases/tag/${{ matrix.path }}-v${{ fromJson(env.BUILDCONFIG).version }}
+            org.opencontainers.image.source=https://github.com/hyperfluid-solutions/baseimages
+            org.opencontainers.image.title=${{ matrix.path }}
+            org.opencontainers.image.documentation=https://github.com/hyperfluid-solutions/baseimages/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
+          context: ./${{ matrix.path }}
+          file: ./${{ matrix.path }}/Dockerfile
           platforms: ${{ fromJson(env.PACKAGE_JSON).platforms }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}

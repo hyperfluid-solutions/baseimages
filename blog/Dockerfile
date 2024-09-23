@@ -10,6 +10,4 @@ WORKDIR /usr/local/src
 
 RUN Rscript install.R
 
-LABEL org.opencontainers.image.source="https://github.com/hyperfluid-solutions/baseimages"
-
 CMD [ "R" ]
