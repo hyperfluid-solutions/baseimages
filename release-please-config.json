@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "blog": {
+      "release-type": "simple",
+      "initial-version": "0.0.1",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "buildconfig.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "buildconfig.json",
+          "jsonpath": "$.major"
+        },
+        {
+          "type": "json",
+          "path": "buildconfig.json",
+          "jsonpath": "$.majorminor"
+        }
+      ]
+    }
+  }
+}
