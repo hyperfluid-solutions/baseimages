@@ -10,4 +10,9 @@ WORKDIR /usr/local/src
 
 RUN Rscript install.R
 
+LABEL org.opencontainers.image.source="https://github.com/hyperfluid-solutions/baseimages"
+LABEL org.opencontainers.image.vendor="Hyperfluid Solutions Corp."
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.authors="Hyperfluid Team hello@hyperfluidsolutions.com"
+
 CMD [ "R" ]
