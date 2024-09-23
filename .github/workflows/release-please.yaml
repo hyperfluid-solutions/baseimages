@@ -44,6 +44,12 @@ jobs:
       - run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
       - run: echo '${{ fromJson(env.BUILDCONFIG).version }}'
 
+      - name: Parse Semver
+        id: semver
+        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
+        with:
+          input_string: ${{ fromJson(env.BUILDCONFIG).version }}
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -54,8 +60,8 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}},value=${{ fromJson(env.BUILDCONFIG).version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ fromJson(env.BUILDCONFIG).majorminor }}
-            type=semver,pattern={{major}},value=${{ fromJson(env.BUILDCONFIG).major }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.semver.outputs.major }}.${{ steps.semver.outputs.minor }}
+            type=semver,pattern={{major}},value=${{ steps.semver.outputs.major }}
             type=sha
       
       - name: Build and push

@@ -9,16 +9,6 @@
           "type": "json",
           "path": "buildconfig.json",
           "jsonpath": "$.version"
-        },
-        {
-          "type": "json",
-          "path": "buildconfig.json",
-          "jsonpath": "$.major"
-        },
-        {
-          "type": "json",
-          "path": "buildconfig.json",
-          "jsonpath": "$.majorminor"
         }
       ]
     }
