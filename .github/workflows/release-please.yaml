@@ -6,12 +6,13 @@ on:
       - main
 
 jobs:
-  release-please:
+  release_please:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     outputs:
+      paths_released: ${{ steps.release.outputs.paths_released }}
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
@@ -23,3 +24,45 @@ jobs:
           token: ${{ secrets.GH_RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish_image:
+    if: ${{ steps.release.outputs['Home/Areas/Blogs--release_created'] }}
+    runs-on: ubuntu-latest
+    needs: release_please
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.release_please.outputs.paths_released) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
+      - run: echo '${{ fromJson(env.BUILDCONFIG).version }}'
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            hyperfluid-solutions/${{ matrix.path }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}},value=${{ fromJson(env.BUILDCONFIG).version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ fromJson(env.BUILDCONFIG).majorminor }}
+            type=semver,pattern={{major}},value=${{ fromJson(env.BUILDCONFIG).major }}
+            type=sha
+      
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ fromJson(env.PACKAGE_JSON).platforms }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

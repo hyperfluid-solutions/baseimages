@@ -3,7 +3,24 @@
   "packages": {
     "blog": {
       "release-type": "simple",
-      "initial-version": "0.0.1"
+      "initial-version": "0.0.1",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "buildconfig.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "buildconfig.json",
+          "jsonpath": "$.major"
+        },
+        {
+          "type": "json",
+          "path": "buildconfig.json",
+          "jsonpath": "$.majorminor"
+        }
+      ]
     }
   }
 }
