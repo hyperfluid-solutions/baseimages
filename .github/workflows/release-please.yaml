@@ -14,7 +14,6 @@ jobs:
     outputs:
       paths_released: ${{ steps.release.outputs.paths_released }}
       releases_created: ${{ steps.release.outputs.releases_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,7 +25,7 @@ jobs:
           manifest-file: .release-please-manifest.json
 
   publish_image:
-    if: ${{ steps.release.outputs['Home/Areas/Blogs--release_created'] }}
+    if: ${{ needs.release_please.releases_created }}
     runs-on: ubuntu-latest
     needs: release_please
     strategy:
