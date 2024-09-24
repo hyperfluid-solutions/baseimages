@@ -15,6 +15,12 @@ on:
       - "/blog"
       - ".github/workflows/build-blog.yaml"
 
+env:
+  GITHUB_ORG: hyperfluid-solutions
+  GITHUB_REPO: baseimages
+  IMAGE_LICENSES: MIT
+  IMAGE_VENDOR: Hyperfluid Solutions Corp.
+
 jobs:
   build_image:
     name: Build Docker image
@@ -74,7 +80,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/hyperfluid-solutions/${{ matrix.path }}
+            ghcr.io/${{ env.GITHUB_ORG }}/${{ matrix.path }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -86,14 +92,14 @@ jobs:
           # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
           labels: |
             org.opencontainers.image.name=${{ matrix.path }}
-            org.opencontainers.image.licenses=MIT
-            org.opencontainers.image.vendor=Hyperfluid Solutions Corp.
+            org.opencontainers.image.licenses=${{ env.IMAGE_LICENSES }}
+            org.opencontainers.image.vendor=${{ env.IMAGE_VENDOR }}
             org.opencontainers.image.version=${{ fromJson(env.BUILDCONFIG).version }}
             org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.url=https://github.com/hyperfluid-solutions/baseimages/releases/tag/${{ matrix.path }}-v${{ fromJson(env.BUILDCONFIG).version }}
-            org.opencontainers.image.source=https://github.com/hyperfluid-solutions/baseimages
+            org.opencontainers.image.url=https://github.com/${{ env.GITHUB_ORG }}/baseimages/releases/tag/${{ matrix.path }}-v${{ fromJson(env.BUILDCONFIG).version }}
+            org.opencontainers.image.source=https://github.com/${{ env.GITHUB_ORG }}/baseimages
             org.opencontainers.image.title=${{ matrix.path }}
-            org.opencontainers.image.documentation=https://github.com/hyperfluid-solutions/baseimages/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
+            org.opencontainers.image.documentation=https://github.com/${{ env.GITHUB_ORG }}/${{ env.GITHUB_REPO }}/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -103,3 +109,5 @@ jobs:
           push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.GITHUB_ORG }}/${{ matrix.path }}:cache
+          cache-to: type=registry,ref=${{ env.GITHUB_ORG }}/${{ matrix.path }}:cache,mode=max
