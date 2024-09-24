@@ -33,6 +33,14 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+      
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -47,76 +55,6 @@ jobs:
           context: ./blog
           file: ./blog/Dockerfile
           push: false
-  
-  test_deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        path: [blog]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Loading buildconfig.json into env.BUILDCONFIG
-        run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
-
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v3
-      
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          platforms: ${{ fromJson(env.BUILDCONFIG).platforms }}
-      
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Parse Semver
-        id: semver
-        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
-        with:
-          input_string: ${{ fromJson(env.BUILDCONFIG).version }}
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/${{ env.GITHUB_ORG }}/${{ matrix.path }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}},value=${{ fromJson(env.BUILDCONFIG).version }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ steps.semver.outputs.major }}.${{ steps.semver.outputs.minor }}
-            type=semver,pattern={{major}},value=${{ steps.semver.outputs.major }}
-            type=sha
-          # Predefined Annotation Keys:
-          # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
-          labels: |
-            org.opencontainers.image.name=${{ matrix.path }}
-            org.opencontainers.image.licenses=${{ env.IMAGE_LICENSES }}
-            org.opencontainers.image.vendor=${{ env.IMAGE_VENDOR }}
-            org.opencontainers.image.version=${{ fromJson(env.BUILDCONFIG).version }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.url=https://github.com/${{ env.GITHUB_ORG }}/baseimages/releases/tag/${{ matrix.path }}-v${{ fromJson(env.BUILDCONFIG).version }}
-            org.opencontainers.image.source=https://github.com/${{ env.GITHUB_ORG }}/baseimages
-            org.opencontainers.image.title=${{ matrix.path }}
-            org.opencontainers.image.documentation=https://github.com/${{ env.GITHUB_ORG }}/${{ env.GITHUB_REPO }}/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ matrix.path }}
-          file: ./${{ matrix.path }}/Dockerfile
-          # platforms: ${{ fromJson(env.BUILDCONFIG).platforms }}
-          push: false
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
       - # Temp fix
