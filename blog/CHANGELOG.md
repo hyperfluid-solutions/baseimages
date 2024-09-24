@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.3.1...blog-v0.3.2) (2024-09-24)
+
+
+### Bug Fixes
+
+* added caching and reduced blog image build time ([38de9c9](https://github.com/hyperfluid-solutions/baseimages/commit/38de9c9ca085066c598f2232415d45b3806b9483))
+
 ## [0.3.1](https://github.com/hyperfluid-solutions/baseimages/compare/blog-v0.3.0...blog-v0.3.1) (2024-09-23)
 
 
