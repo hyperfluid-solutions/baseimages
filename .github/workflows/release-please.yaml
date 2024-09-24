@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+env:
+  GITHUB_ORG: hyperfluid-solutions
+  GITHUB_REPO: baseimages
+  IMAGE_LICENSES: MIT
+  IMAGE_VENDOR: Hyperfluid Solutions Corp.
+  DOCKER_REGISTRY: ghcr.io
+
 jobs:
   release_please:
     runs-on: ubuntu-latest
@@ -16,8 +23,8 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses: googleapis/release-please-action@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
+      - uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f # ratchet:googleapis/release-please-action@v4
         id: release
         with:
           token: ${{ secrets.GH_RELEASE_PLEASE_TOKEN }}
@@ -33,37 +40,44 @@ jobs:
         path: ${{ fromJson(needs.release_please.outputs.paths_released) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/check
       
       - name: Cache Docker layers
-        uses: actions/cache@v4
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # ratchet:actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # ratchet:docker/login-action@v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_REGISTRY_TOKEN }}
+
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      
+        uses: docker/setup-qemu-action@49b3bc8e6bdd4a60e6116a5414239cba5943d3cf # ratchet:docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@988b5a0280414f521da01fcc63a27aeeb4b104db # ratchet:docker/setup-buildx-action@v3
 
       - name: Loading buildconfig.json into env.BUILDCONFIG
         run: echo "BUILDCONFIG=$(jq -c . < ${{ matrix.path }}/buildconfig.json)" >> $GITHUB_ENV
 
       - name: Parse Semver
         id: semver
-        uses: booxmedialtd/ws-action-parse-semver@v1.4.7
+        uses: booxmedialtd/ws-action-parse-semver@7784200024d6b3fc01253e617ec0168daf603de3 # ratchet:booxmedialtd/ws-action-parse-semver@v1.4.7
         with:
           input_string: ${{ fromJson(env.BUILDCONFIG).version }}
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # ratchet:docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/hyperfluid-solutions/${{ matrix.path }}
+            ${{ env.DOCKER_REGISTRY }}/${{ env.GITHUB_ORG }}/${{ matrix.path }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -85,7 +99,7 @@ jobs:
             org.opencontainers.image.documentation=https://github.com/hyperfluid-solutions/baseimages/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # ratchet:docker/build-push-action@v6
         with:
           context: ./${{ matrix.path }}
           file: ./${{ matrix.path }}/Dockerfile
