@@ -99,7 +99,7 @@ jobs:
             org.opencontainers.image.documentation=https://github.com/hyperfluid-solutions/baseimages/blob/main/${{ fromJson(env.BUILDCONFIG).documentation }}
 
       - name: Build and push
-        uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # ratchet:docker/build-push-action@v6
+        uses: docker/build-push-action@32945a339266b759abcbdc89316275140b0fc960 # ratchet:docker/build-push-action@v6
         with:
           context: ./${{ matrix.path }}
           file: ./${{ matrix.path }}/Dockerfile
