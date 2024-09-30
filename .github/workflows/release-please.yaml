@@ -23,7 +23,7 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/checkout@v4
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # ratchet:actions/checkout@v4
       - uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f # ratchet:googleapis/release-please-action@v4
         id: release
         with:
@@ -40,7 +40,7 @@ jobs:
         path: ${{ fromJson(needs.release_please.outputs.paths_released) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # ratchet:actions/check
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # ratchet:actions/check
       
       - name: Cache Docker layers
         uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # ratchet:actions/cache@v4
